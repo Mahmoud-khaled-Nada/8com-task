@@ -1,8 +1,8 @@
 
 import Joi from 'joi';
 import { catchAsyncError } from "../middlewares/common/catch.async.error.js";
-import User, { makeAavatar } from "./user.model.js";
-import { sendWelcomeEmail } from './welcome.email.js';
+import User, { hash, makeAavatar } from "./user.model.js";
+// import { sendWelcomeEmail } from './welcome.email.js';
 import bcryptjs from "bcryptjs";
 import { createNotification } from '../notifications/notifications.controller.js';
 import { logAction } from '../audit-log/audit-log.js';
@@ -13,7 +13,7 @@ const registerSchema = Joi.object({
     email: Joi.string().email().required(),
     avatar: Joi.string().uri().optional(),
     role: Joi.string().valid("customer", "admin", "seller").default("customer"),
-    password: Joi.string().min(6).max(20).required()
+    password: Joi.string().min(3).max(20)
 });
 
 export const register = catchAsyncError(async (req, res) => {
@@ -30,19 +30,22 @@ export const register = catchAsyncError(async (req, res) => {
         return res.status(400).json({ success: false, message: "User already exists with this email" });
     }
 
+    const hashPassword = await bcryptjs.hash(password, 12);
+
+
     const newUser = await User.create({
         name: name,
         email,
         role: role || "customer",
         avatar: makeAavatar(req.body.avatar, name),
-        password
+        password: hashPassword ?? null
     });
 
     if (!newUser) {
         return res.status(500).json({ success: false, message: "Failed to register user" });
     }
 
-    sendWelcomeEmail(newUser.email, newUser.name);
+    // sendWelcomeEmail(newUser.email, newUser.name);
     createNotification({
         title: "Welcome to Our Platform",
         message: `Hello ${newUser.name}, thank you for registering!`,

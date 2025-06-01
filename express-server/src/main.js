@@ -63,7 +63,7 @@ app.use(helmet({
 app.use('/api/v1', rateLimit({
   windowMs: config.rateLimit.windowMs,
   max: config.rateLimit.max,
-  message: {error: 'Too many requests from this IP, please try again later.'},
+  message: { error: 'Too many requests from this IP, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
 }));

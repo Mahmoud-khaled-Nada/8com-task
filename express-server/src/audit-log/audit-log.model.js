@@ -6,7 +6,7 @@ const auditLogSchema = new mongoose.Schema(
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         action: String,
         metadata: mongoose.Schema.Types.Mixed,
-        ipAddress: String,
+        ipAddress: { type: String, required: false },
     },
     { timestamps: true }
 );

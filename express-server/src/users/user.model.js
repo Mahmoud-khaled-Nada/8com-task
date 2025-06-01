@@ -40,7 +40,7 @@ const userSchema = new Schema(
         password: {
             type: String,
             required: false,
-            minlength: 6,
+            minlength: 3,
             // select: false,
         },
         googleId: {
@@ -65,23 +65,15 @@ const userSchema = new Schema(
 );
 
 
-userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next();
-    this.password = bcryptjs.hash(this.password, 12);
-    next();
-});
+export const hash = (password) => bcryptjs.hash(password, 12)
 
-
-userSchema.methods.verifyPassword = async function (candidatePassword) {
-    return await bcryptjs.compare(candidatePassword, this.password);
+userSchema.methods.verifyPassword = async function  (candidatePassword) {
+  return  await bcryptjs.compare(candidatePassword, this.password);
 };
 
 
 export const makeAavatar = (avatar, name) => {
-
-    if (avatar)
-        return avatar;
-
+    if (avatar) return avatar;
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
 };
 

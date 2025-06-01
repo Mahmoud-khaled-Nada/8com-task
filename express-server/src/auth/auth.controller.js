@@ -7,7 +7,7 @@ import { CACHE_KEYS } from '../middlewares/private/authenticate.js';
 
 const loginSchema = Joi.object({
   email: Joi.string().email().required(),
-  password: Joi.string().min(6).max(20).required()
+  password: Joi.string().min(3).max(20).required()
 });
 
 export const login = catchAsyncError(async (req, res) => {
@@ -18,14 +18,17 @@ export const login = catchAsyncError(async (req, res) => {
     return res.status(400).json({ message: error.details[0].message });
   }
 
-  // Optional: rate-limiting logic could be added here
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select('+password');
+
   if (!user) {
     return res.status(404).json({ success: false, message: "User not found with this email" });
   }
 
+  console.log(password)
+
   const isPasswordValid = await user.verifyPassword(password);
+  console.log(isPasswordValid)
   if (!isPasswordValid) {
     return res.status(400).json({ success: false, message: "Invalid password" });
   }

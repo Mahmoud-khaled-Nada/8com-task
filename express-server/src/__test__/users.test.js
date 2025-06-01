@@ -1,30 +1,38 @@
+import request from "supertest";
+import app from "../main.js";
 
+describe("Express App API users", () => {
+    it("user already exists", async () => {
+        const res = await request(app)
+            .post("/api/v1/users/register")
+            .send({
+                name: "Nada Seller",
+                email: "seller@shop.com",
+                role: "seller",
+                password: "seller123"
+            });
 
-import request from "supertest"
-import app from "../app.js"
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toMatchObject({
+            success: false,
+            message: "User already exists with this email"
+        });
+    });
 
+    it("User registered successfully", async () => {
+        const res = await request(app)
+            .post("/api/v1/users/register")
+            .send({
+                name: "Nada2 Seller",
+                email: "seller2@shop.com",
+                role: "seller",
+                password: "seller123"
+            });
 
-
-
-// describe(' Express App API', () => {
-//     it('backend is working', async () => {
-//     const res = await request(app).get('/api/v1/healthz');
-//     expect(res.statusCode).toBe(200);
-//     expect(res.body).toHaveProperty('message', 'Up and running v1');
-//   });
-// })
-
-// describe('Express App API', () => {
-
-
-//   it('POST /echo should return sent data', async () => {
-//     const payload = { name: 'John', age: 30 };
-//     const res = await request(app)
-//       .post('/echo')
-//       .send(payload);
-      
-//     expect(res.statusCode).toBe(200);
-//     expect(res.body).toHaveProperty('youSent');
-//     expect(res.body.youSent).toEqual(payload);
-//   });
-// });
+        expect(res.statusCode).toBe(201);
+        expect(res.body).toMatchObject({
+            success: true,
+            message: "User registered successfully"
+        });
+    });
+});

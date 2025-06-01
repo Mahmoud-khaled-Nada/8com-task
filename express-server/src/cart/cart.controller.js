@@ -180,7 +180,7 @@ export const updateCart = async (cartCookieId, data, res) => {
         userId: cartCookieId,
         action: "UPDATE_CART",
         metadata: { cartCookieId, name: enrichedProduct.name },
-        ipAddress: req.ip,
+        ipAddress: null,
     });
 
     res.cookie("cartCookieId", cart.cookieId, {
@@ -224,13 +224,6 @@ export const updateQuantity = async (req, res) => {
         await recalculateCart(cart);
         await cart.save();
         await Cache.del(`cart:${cartId}`);
-
-        await logAction({
-            userId: cartCookieId,
-            action: "UPDATE_CART",
-            metadata: { cartCookieId, name: product.name },
-            ipAddress: req.ip,
-        });
 
         return res.status(200).json(cart);
     } catch (error) {
