@@ -1,0 +1,4 @@
+node_modules
+npm-debug.log
+# .env
+\\wsl.localhost\Ubuntu\home\nada\www\Projects\8com-task\shop-sync-catalog\.dockerignore
