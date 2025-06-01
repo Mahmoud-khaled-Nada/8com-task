@@ -50,7 +50,7 @@ export const tokenManager = {
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
-  baseURL: VITE_API_SERVER_URL || "http://localhost:000/api/v1",
+  baseURL: VITE_API_SERVER_URL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -72,7 +72,7 @@ api.interceptors.response.use(
       try {
         // Refresh endpoint should read refresh_token from cookie
         await axios.post(
-          `${VITE_API_SERVER_URL || "http://localhost:5000/api/v1"}/auth/refresh-token`,
+          `${VITE_API_SERVER_URL}/auth/refresh-token`,
           {},
           {
             withCredentials: true, // ✅ make sure cookies are sent
@@ -342,8 +342,8 @@ export const notificationAPI = {
       throw new Error(error.response?.data?.message || "Failed to fetch notifications");
     }
   },
-  
-    getAllNotificationsAsAdmin: async (): Promise<ApiResponse<Notification[]>> => {
+
+  getAllNotificationsAsAdmin: async (): Promise<ApiResponse<Notification[]>> => {
     try {
       const response = await api.get<ApiResponse<Notification[]>>("/notifications-as-admin");
       return response.data;

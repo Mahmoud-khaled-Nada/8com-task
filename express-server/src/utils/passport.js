@@ -2,7 +2,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../users/user.model.js';
-import { generateToken } from '../utils/jwt.js';
+import { generateToken } from './jwt.js';
 
 export const configurePassport = () => {
   // Google OAuth Strategy

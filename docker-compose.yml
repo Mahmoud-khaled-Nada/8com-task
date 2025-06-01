@@ -1,0 +1,88 @@
+version: "3.8"
+
+services:
+  # Backend Service
+  backend:
+    build: 
+      context: ./express-server
+      dockerfile: Dockerfile
+    container_name: shop_sync_backend
+    ports:
+      - "${BACKEND_PORT:-5000}:5000"
+    env_file:
+      - ./express-server/.env
+    environment:
+      - NODE_ENV=development
+      - MONGO_URL=mongodb://mongo:27017/shop-sync
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./express-server:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - shop_sync_network
+    restart: unless-stopped
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: shop_sync_frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    env_file:
+      - ./client/.env
+    environment:
+      - VITE_API_SERVER_URL=http://localhost:5000/api/v1
+      - VITE_WEBSOCKET_SERVER_URL=http://localhost:5000
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - shop_sync_network
+    restart: unless-stopped
+
+  # MongoDB Service
+  mongo:
+    image: mongo:7
+    container_name: shop_sync_mongo
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - shop_sync_network
+    restart: unless-stopped
+    command: mongod --bind_ip_all
+
+  # Redis Service
+  redis:
+    image: redis:alpine
+    container_name: shop_sync_redis
+    ports:
+      - "${REDIS_PORT:-6378}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - shop_sync_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+networks:
+  shop_sync_network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local
+  redis_data:
+    driver: local 
